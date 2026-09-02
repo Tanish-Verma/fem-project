@@ -64,6 +64,8 @@ function derivative(p::Poly)
 end
 
 Base.adjoint(p::Poly) = derivative(p)
+Base.adjoint(p::Vector{Poly}) = derivative.(p)
+Base.adjoint(p::Matrix{Poly}) = derivative.(p)
 
 Base.transpose(p::Poly) = p
 
