@@ -6,7 +6,7 @@ struct Poly
     elements::Vector{Float64}
 end
 
-import Base: +, -, *, adjoint, zero
+import Base: +, -, *, /, adjoint, zero, transpose
 
 Base.zero(::Type{Poly}) = Poly([0.0])
 Base.zero(p::Poly) = Poly([0.0])
@@ -29,6 +29,8 @@ end
 *(c::Number, p::Poly) = Poly(c.*p.elements)
 
 *(p::Poly, c::Number) = c*p
+
+/(p::Poly, c::Number) = p*(1/c)
 
 function *(p1::Poly, p2::Poly)
     deg = length(p1.elements) + length(p2.elements) - 2
@@ -62,5 +64,7 @@ function derivative(p::Poly)
 end
 
 Base.adjoint(p::Poly) = derivative(p)
+
+Base.transpose(p::Poly) = p
 
 end
