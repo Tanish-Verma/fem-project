@@ -11,7 +11,7 @@ using  .preprocessor
 	fm = forceAndMoments()
 	rel = releases()
 
-	mesh = generateMesh(bc, fm, rel; nElemRequested=3)
+	mesh = generateMesh(beam,bc, fm, rel;);
 	LM = generateLM(mesh)
 
 	println("Generated node locations: ", mesh.nodeLocs)

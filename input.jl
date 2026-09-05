@@ -3,7 +3,7 @@ function beamParameters()
     E(x) = 1000^2 * 210;      # GPa -> KN/m^2
     I(x) = 100 * 1e-6;        # m^4
     nElem = 3;
-    return (; beam_length, E, I)
+    return (; beam_length, E, I, nElem)
 end
 
 function boundaryConditions()

@@ -2,15 +2,15 @@ module preprocessor
 
 export generateMesh,generateLM;
 
-function generateMesh(bc, fm, rel; nElemRequested::Int)
+function generateMesh(beam,bc, fm, rel;)
     specialLocs = vcat(bc.bcLoc, fm.pfLoc, fm.pmLoc, rel.relLoc)
     specialLocs = sort(unique(specialLocs))
 
     minElements = length(specialLocs) - 1
-    nElem = max(nElemRequested, minElements)
+    nElem = max(beam.nElem, minElements)
     
-    if nElemRequested < minElements
-        @warn "Requested $nElemRequested elements; bumping to $minElements to guarantee a node at every support/force/moment/release."
+    if beam.nElem < minElements
+        @warn "Requested $(beam.nElem) elements; bumping to $minElements to guarantee a node at every support/force/moment/release."
     end
 
     extra = nElem - minElements                     
