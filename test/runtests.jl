@@ -2,6 +2,7 @@ using Test
 
 include(joinpath(@__DIR__, "..", "src", "Kelem.jl"))
 include(joinpath(@__DIR__, "..", "src", "Felem.jl"))
+include(joinpath(@__DIR__, "testpreprocessor.jl"))
 
 using .Kelem: kelem
 using .Felem: felem
