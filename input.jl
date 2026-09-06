@@ -4,7 +4,7 @@ function beamParameters()
     I(x) = 100 * 1e-6;        # m^4
     nElem = 3;
     nnpe = 2;
-    return (; beam_length, E, I, nElem)
+    return (; beam_length, E, I, nElem, nnpe)
 end
 
 function boundaryConditions()
@@ -22,15 +22,15 @@ function forceAndMoments()
     nPointMoment = 0;
     pfLoc = [6];              # location(s) of point force(s)
     pfVal = [120];            # magnitude(s) of point force(s), kN
-    pmLoc = [];
+    pmLoc = [6];
     pmVal = [];
     return (; q, nPointForce, nPointMoment, pfLoc, pfVal, pmLoc, pmVal)
 end
 
 function releases()
-    nReleases = 1;
-    relLoc  = [2];       # x-location of release
-    relType = [:m];       # :v (shear release) or :m (moment release)
+    nReleases = 0;
+    relLoc  = [];       # x-location of release
+    relType = [];       # :v (shear release) or :m (moment release)
 
     return (; nReleases, relLoc, relType)
 end

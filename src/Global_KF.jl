@@ -1,4 +1,4 @@
-module GlobalKF
+module Global_KF
 
 include("Kelem.jl")
 include("Felem.jl")
@@ -10,14 +10,14 @@ using .ShapeFunct
 
 export global_kf
 
-function global_kf(mesh, LM, E::Function, I::Function, q::Function; point_forces = [], point_moments = [], nnel::Int = div(size(LM, 1), 2))
+function global_kf(mesh, LM, beam, fm; nnpe::Int = div(size(LM, 1), 2))
 
     nElem = mesh.nElem
     nodeLocs = mesh.nodeLocs
 
     totdofpElem = size(LM, 1)
-    if totdofpElem != 2 * nnel
-        error("Mismatch: LM matrix has $totdofpElem rows, but nnel = $nnel expects $(2*nnel) rows.")
+    if totdofpElem != 2 * nnpe
+        error("Mismatch: LM matrix has $totdofpElem rows, but nnpe = $nnpe expects $(2*nnpe) rows.")
     end
 
     ndof = maximum(LM)
@@ -31,8 +31,8 @@ function global_kf(mesh, LM, E::Function, I::Function, q::Function; point_forces
         xend   = nodeLocs[e+1]
         Le     = xend - xstart
 
-        Ke = kelem(E, I, Le, nnel, xstart)
-        Fe = felem(q, Le, nnel, xstart)
+        Ke = kelem(beam.E, beam.I, Le, nnpe, xstart)
+        Fe = felem(fm.q, Le, nnpe, xstart)
 
         lm = LM[:, e]
 
@@ -53,8 +53,7 @@ function global_kf(mesh, LM, E::Function, I::Function, q::Function; point_forces
     end
 
     # 2. POINT FORCES
-    for load in point_forces
-        xp, P = load[1], load[2]
+    for (xp, P) in zip(fm.pfLoc, fm.pfVal)
         e = find_elem(xp)
         isnothing(e) && error("Point force at x = $xp is outside the mesh domain.")
 
@@ -63,7 +62,7 @@ function global_kf(mesh, LM, E::Function, I::Function, q::Function; point_forces
         J  = Le / 2.0
         ξ  = 2.0 * (xp - xstart) / Le - 1.0
 
-        pem = ShapeFunctions(nnel)
+        pem = ShapeFunctions(nnpe)
         lm  = LM[:, e]
 
         # Rotation DOFs (even indices) are scaled by the Jacobian J -- same
@@ -76,8 +75,7 @@ function global_kf(mesh, LM, E::Function, I::Function, q::Function; point_forces
     end
 
     # 3. POINT MOMENTS
-    for load in point_moments
-        xp, M = load[1], load[2]
+    for (xp, M) in zip(fm.pmLoc, fm.pmVal)
         e = find_elem(xp)
         isnothing(e) && error("Point moment at x = $xp is outside the mesh domain.")
 
@@ -86,7 +84,7 @@ function global_kf(mesh, LM, E::Function, I::Function, q::Function; point_forces
         J  = Le / 2.0
         ξ  = 2.0 * (xp - xstart) / Le - 1.0
 
-        pem = ShapeFunctions(nnel)
+        pem = ShapeFunctions(nnpe)
 
         # Polynomial derivative operator '
         pem_dash = [p' for p in pem]
