@@ -54,7 +54,9 @@ function Solve(beam, bc, fm, rel)
 
     u = K \ F
     
-    return (; u, K = K_orig, F = F_orig, mesh, LM)
+    reactions = K_orig * u - F_orig
+	    
+    return (; u, K = K_orig, F = F_orig, reactions, mesh, LM)
 end
 
 end
