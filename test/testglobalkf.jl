@@ -1,8 +1,8 @@
 using Test
 
-include(joinpath(@__DIR__, "..", "src", "Global_K&F.jl"))
+include(joinpath(@__DIR__, "..", "src", "Global_KF.jl"))
 
-using .GlobalKF: global_kf
+using .Global_KF: global_kf
 
 # Expected values below were derived independently (closed-form Hermite beam
 # stiffness / fixed-end-force formulas, worked out by hand), not by copying
@@ -19,9 +19,11 @@ using .GlobalKF: global_kf
     LM = [1 3; 2 5; 3 6; 4 7]
     zero_load(x) = 0.0
     onefn(x) = 1.0
+        beam = (E = onefn, I = onefn)
+        fm = (q = zero_load, pfLoc = [2.0], pfVal = [10.0],
+            pmLoc = Float64[], pmVal = Float64[])
 
-    _, Fg = global_kf(mesh, LM, onefn, onefn, zero_load;
-                       point_forces = [(2.0, 10.0)])
+        _, Fg = global_kf(mesh, LM, beam, fm)
     @test Fg[3] ≈ 10.0                    # shared w dof gets the full force
     @test isapprox(Fg[5], 0.0; atol=1e-8) # element 2's private theta: untouched
     @test isapprox(Fg[6], 0.0; atol=1e-8)
@@ -35,9 +37,11 @@ end
     LM = [1 5; 2 4; 3 6; 4 7]
     zero_load(x) = 0.0
     onefn(x) = 1.0
+        beam = (E = onefn, I = onefn)
+        fm = (q = zero_load, pfLoc = Float64[], pfVal = Float64[],
+            pmLoc = [2.0], pmVal = [10.0])
 
-    _, Fg = global_kf(mesh, LM, onefn, onefn, zero_load;
-                       point_moments = [(2.0, 10.0)])
+        _, Fg = global_kf(mesh, LM, beam, fm)
     @test Fg[4] ≈ 10.0                    # shared theta dof gets the full moment
 end
 
@@ -45,19 +49,22 @@ end
     E1(x) = 1.0
     I1(x) = 1.0
     zero_load(x) = 0.0
+        beam = (E = E1, I = I1)
+        fm = (q = zero_load, pfLoc = Float64[], pfVal = Float64[],
+            pmLoc = Float64[], pmVal = Float64[])
     nodeLocs = [0.0, 2.0, 4.0]
 
     # baseline: ordinary shared mesh, no release at all
     mesh_plain = (nElem = 2, nodeLocs = nodeLocs,
                   releaseElemIdx = Int[], releaseNodeType = Symbol[])
     LM_plain = [1 3; 2 4; 3 5; 4 6]
-    Kg_plain, _ = global_kf(mesh_plain, LM_plain, E1, I1, zero_load)
+    Kg_plain, _ = global_kf(mesh_plain, LM_plain, beam, fm)
 
     # same two elements, but a moment release (hinge) at the shared node
     mesh_hinge = (nElem = 2, nodeLocs = nodeLocs,
                   releaseElemIdx = [2], releaseNodeType = [:m])
     LM_hinge = [1 3; 2 5; 3 6; 4 7]
-    Kg_hinge, _ = global_kf(mesh_hinge, LM_hinge, E1, I1, zero_load)
+    Kg_hinge, _ = global_kf(mesh_hinge, LM_hinge, beam, fm)
 
     # Dof 4 is "the shared theta at node 2" in the plain mesh (fed by BOTH
     # elements), but becomes "element 1's own private theta" in the hinged
