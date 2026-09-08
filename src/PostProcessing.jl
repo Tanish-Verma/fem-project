@@ -3,6 +3,7 @@ module PostProcessing
 include("ShapeFunct.jl")
 using .ShapeFunct
 using Plots
+gr()
 
 export postprocess, plot_results
 
@@ -112,8 +113,6 @@ function plot_results(results)
     combined = plot(p1,p2,p3,
         layout=(3,1),
         size=(800,1000))
-
-    display(combined)
 
     return (; deflection_plot=p1,
         shear_plot=p2,

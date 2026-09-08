@@ -1,8 +1,6 @@
 include("input.jl")
-include("src/Solver.jl")
-include("src/PostProcessing.jl")
-using .Solver
-using .PostProcessing
+include("src/FEMBeamSolver.jl")
+using .FEMBeamSolver
 
 beam = beamParameters()
 bc = boundaryConditions()
@@ -19,3 +17,6 @@ println(result.reactions)
 results = postprocess(result,beam,bc,fm)
 
 plots = plot_results(results)
+display(plots.combined_plot)
+println("Press Enter to close the plot...")
+readline()
