@@ -63,6 +63,13 @@ function postprocess(result, beam, bc, fm; npoints=200)
     x = collect(range(xmin,xmax,length=npoints))
     V = zeros(npoints)
 
+    # Compute cumulative integral of distributed load using trapezoidal rule
+    q_integral = zeros(npoints)
+    for i in 2:npoints
+        dx = x[i] - x[i-1]
+        q_integral[i] = q_integral[i-1] + (fm.q(x[i-1]) + fm.q(x[i])) * dx / 2
+    end
+
     for i in eachindex(x)
         xi = x[i]
         for j in eachindex(rloc)
@@ -71,7 +78,7 @@ function postprocess(result, beam, bc, fm; npoints=200)
             end
         end
 
-        V[i] -= fm.q(xi)*(xi-xmin)
+        V[i] -= q_integral[i]
 
         for j in eachindex(fm.pfLoc)
             if fm.pfLoc[j] <= xi
