@@ -3,7 +3,7 @@ module preprocessor
 export generateMesh,generateLM;
 
 function generateMesh(beam,bc, fm, rel)
-    specialLocs = vcat(bc.bcLoc, fm.pfLoc, fm.pmLoc, rel.relLoc)
+    specialLocs = vcat(bc.bcLoc, fm.pfLoc, fm.pmLoc, rel.relLoc, 0.0, beam.beam_length)
     specialLocs = sort(unique(specialLocs))
 
     minElements = length(specialLocs) - 1
