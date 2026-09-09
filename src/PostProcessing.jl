@@ -5,13 +5,15 @@ using .ShapeFunct
 using Plots
 
 export postprocess, plot_results
-
+	
 function postprocess(result, beam, bc, fm; npoints=200)
     u = result.u
     mesh = result.mesh
     LM = result.LM
     xdef = Float64[]
     wdef = Float64[]
+    xtheta = Float64[]
+    theta = Float64[]
 
     for e in 1:mesh.nElem
         x1 = mesh.nodeLocs[e]
@@ -22,20 +24,25 @@ function postprocess(result, beam, bc, fm; npoints=200)
         ue = u[lm]
         nnpe = div(length(ue),2)
         N = ShapeFunctions(nnpe)
+        Ndash = [p' for p in N]
         points = range(-1,1,length=50)
-
         for ξ in points
             x = x1 + J*(1+ξ)
             w = 0.0
+            rot = 0.0
             for i in eachindex(N)
                 if isodd(i)
                     w += N[i](ξ)*ue[i]
+                    rot += Ndash[i](ξ)*ue[i]/J
                 else
                     w += N[i](ξ)*J*ue[i]
+                    rot += Ndash[i](ξ)*ue[i]
                 end
             end
             push!(xdef,x)
             push!(wdef,w)
+            push!(xtheta,x)
+            push!(theta,rot)
         end
     end
 
@@ -69,33 +76,46 @@ function postprocess(result, beam, bc, fm; npoints=200)
                 V[i] += rval[j]
             end
         end
-
         V[i] -= fm.q(xi)*(xi-xmin)
-
         for j in eachindex(fm.pfLoc)
             if fm.pfLoc[j] <= xi
                 V[i] -= fm.pfVal[j]
             end
         end
     end
-
     M = zeros(npoints)
-
     for i in 2:npoints
         dx = x[i]-x[i-1]
         M[i] = M[i-1] + (V[i-1]+V[i])*dx/2
     end
-    return (; xdef,wdef,x,V,M,rloc,rval)
+
+    for (loc,moment) in zip(fm.pmLoc,fm.pmVal)
+
+        for i in eachindex(x)
+
+            if x[i] >= loc
+                M[i] += moment
+            end
+        end
+    end
+    return (; xdef,wdef,
+        xtheta,theta,
+        x,V,M,
+        rloc,rval)
 end
 
-
-function plot_results(results)
-
+function plot_results(results,result)
     p1 = plot(results.xdef,results.wdef,
         xlabel="Position x (m)",
         ylabel="Deflection (m)",
         title="Deflection Profile",
         label="Deflection")
+
+    ptheta = plot(results.xtheta,results.theta,
+        xlabel="Position x (m)",
+        ylabel="Rotation θ (rad)",
+        title="Rotation Profile",
+        label="Rotation θ")
 
     p2 = plot(results.x,results.V,
         xlabel="Position x (m)",
@@ -109,13 +129,16 @@ function plot_results(results)
         title="Bending Moment Diagram",
         label="Bending Moment")
 
-    combined = plot(p1,p2,p3,
-        layout=(3,1),
-        size=(800,1000))
+    combined = plot(p1,ptheta,p2,p3,
+        layout=(4,1),
+        size=(800,1250))
+
+    savefig(combined,"combined_results.png")
 
     display(combined)
 
     return (; deflection_plot=p1,
+        rotation_plot=ptheta,
         shear_plot=p2,
         moment_plot=p3,
         combined_plot=combined)

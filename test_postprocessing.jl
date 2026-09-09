@@ -10,12 +10,11 @@ fm = forceAndMoments()
 rel = releases()
 
 result = Solve(beam,bc,fm,rel)
+results = postprocess(result,beam,bc,fm)
 
-println("Displacement vector:")
+println("\nDisplacement vector:")
 println(result.u)
 println("\nReaction vector:")
 println(result.reactions)
 
-results = postprocess(result,beam,bc,fm)
-
-plots = plot_results(results)
+plots = plot_results(results,result)
