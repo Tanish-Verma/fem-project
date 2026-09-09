@@ -3,7 +3,6 @@ module PostProcessing
 include("ShapeFunct.jl")
 using .ShapeFunct
 using Plots
-pythonplot()   # matplotlib backend — requires: using Pkg; Pkg.add("PythonPlot")
 
 export postprocess, plot_results
 
@@ -128,6 +127,8 @@ end
 
 
 function plot_results(results)
+    # Select the backend at runtime; doing this at module scope breaks precompilation.
+    pythonplot()
 
     common = (linewidth=2, tickfontsize=9, guidefontsize=10,
               titlefontsize=12, legend=:best)
