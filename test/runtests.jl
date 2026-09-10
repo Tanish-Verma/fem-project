@@ -6,6 +6,7 @@ include(joinpath(@__DIR__, "testpreprocessor.jl"))
 include(joinpath(@__DIR__,"testglobalkf.jl"))
 include(joinpath(@__DIR__,"testSolver.jl"))
 include(joinpath(@__DIR__,"testpostprocessing.jl"))
+include(joinpath(@__DIR__,"testconvergence.jl"))
 
 using .Kelem: kelem
 using .Felem: felem

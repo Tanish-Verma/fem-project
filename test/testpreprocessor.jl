@@ -5,7 +5,7 @@ include(joinpath(@__DIR__, "..", "src", "preprocessor.jl"))
 using  .preprocessor
 
 @testset "Mesh generation and LM matrix" begin
-	beam = (nElem = 4,)
+	beam = (nElem = 4, beam_length = 8.0)
 	bc = (bcLoc = [0.0, 4.0, 8.0],)
 	fm = (pfLoc = Float64[], pmLoc = Float64[])
 	rel = (relLoc = [4.0], relType = [:m])
@@ -30,7 +30,7 @@ using  .preprocessor
 end
 
 @testset "LM matrix for three-node elements" begin
-	beam = (nElem = 4,)
+	beam = (nElem = 4, beam_length = 8.0)
 	bc = (bcLoc = [0.0, 4.0, 8.0],)
 	fm = (pfLoc = Float64[], pmLoc = Float64[])
 	rel = (relLoc = [4.0], relType = [:m])
