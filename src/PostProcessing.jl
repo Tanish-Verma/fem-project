@@ -4,6 +4,9 @@ include("ShapeFunct.jl")
 using .ShapeFunct
 using Plots
 
+gr()
+# pythonplot()
+
 export postprocess, plot_results
 
 function postprocess(result, beam, bc, fm; npoints=200)
@@ -127,8 +130,6 @@ end
 
 
 function plot_results(results)
-    # Select the backend at runtime; doing this at module scope breaks precompilation.
-    pythonplot()
 
     common = (linewidth=2, tickfontsize=9, guidefontsize=10,
               titlefontsize=12, legend=:best)
