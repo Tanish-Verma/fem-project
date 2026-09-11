@@ -40,8 +40,8 @@ p2 = plot([d.degree for d in p_data], [d.max_def for d in p_data];
     marker=:circle, xlabel="Polynomial degree p = 2nnpe-1", ylabel="Maximum |deflection| (m)",
     title="Maximum Deflection vs. Higher-Order Approximation", yscale=:log10, label="Max Deflection")
 
-savefig(p1, "question6_convergence.png")
-savefig(p2, "question7_convergence.png")
+savefig(p1, "question6_convergence.pdf")
+savefig(p2, "question7_convergence.pdf")
 
 if stdin isa Base.TTY
     display(p1)
